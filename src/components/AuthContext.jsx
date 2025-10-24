@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../lib/api';
 
+  import { authApi } from '../lib/auth.api';
+
 
 
 
@@ -11,6 +13,8 @@ export function AuthProvider({ children }) {
   const [userRoleUser,setUserRoleUser]=useState([])
   const [loadings, setLoading] = useState(true);
   const [error,setError]=useState(null)
+    const [userLogo, setUserLogo] = useState(null);
+
 
   useEffect(() => {
     if(!localStorage.getItem('accessToken')) return
@@ -18,6 +22,67 @@ export function AuthProvider({ children }) {
    console.log("useeffect runs")
     setLoading(false);
   }, []);
+
+  const fetchUserLogo = async (userId) => {
+    try {
+      const res = await authApi.getUserLogo(userId);
+      // const base64 = await convertBlobToBase64(res);
+      setUserLogo(res);
+    } catch (error) {
+      console.error("Error fetching logo:", error);
+    }
+  };
+
+  const uploadUserLogo = async (file) => {
+    try {
+      const res = await authApi.uploadUserLogo(file);
+      // Backend should return updated user with logo info
+      if (res?.data?.user) {
+        setUser(res.data.user);
+      }
+      // Instantly update UI
+      
+      // const base64 = await convertBlobToBase64(file);
+      setUserLogo(res);
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+    }
+  };
+
+  const convertBlobToBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+    //    const handleUploadLogo = async (file) => {
+  //   try {
+  //     await authApi.uploadUserLogo(file);
+  //     // showToast('Logo uploaded successfully!', 'success');
+
+  //     // Refresh logo after upload
+  //     if (user?._id) {
+  //       const logoUrl = await authApi.getUserLogo(user._id);
+  //       setUserLogo(logoUrl);
+  //     }
+  //   } catch (err) {
+  //     console.error('Upload error:', err);
+  //     // showToast(
+  //     //   err.response?.data?.message || 'Failed to upload logo',
+  //     //   'error'
+  //     // );
+  //   }
+  // };
+  //   const fetchUserLogo = async (userId) => {
+  //   try {
+  //     const logoUrl = await authApi.getUserLogo(userId);
+  //     setUserLogo(logoUrl);
+  //   } catch (err) {
+  //     console.error('Fetch logo error:', err);
+  //   }
+  // };
+
 
  const login = async (email, password) => {
   try {
@@ -92,7 +157,7 @@ const getUsers=async()=>{
   };
 
   return (
-    <AuthContext.Provider value={{ user, loadings, login, logout, acceptInvite,userRoleUser }}>
+    <AuthContext.Provider value={{ user, loadings, login, logout, acceptInvite,userRoleUser,userLogo,uploadUserLogo,fetchUserLogo }}>
       {children}
     </AuthContext.Provider>
   );

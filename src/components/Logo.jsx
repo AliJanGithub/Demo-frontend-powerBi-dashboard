@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSettings } from './SettingsContext';
 import { BarChart3 } from './icons/Icons';
+import { useAuth } from './AuthContext';
 
 
 
 export function Logo({ size = 'md', showText = true, className = '' }) {
   const { settings } = useSettings();
+
+  const {userLogo,user,fetchUserLogo}=useAuth()
+  // useEffect(()=>{
+  //   fetchUserLogo(user._id)
+  // },[])
+  // userLogo()
+  console.log("userss loggggggggggggged",user)
+  // console.log("fetch userLogoooooooo",userLogo)
   
   const sizeClasses = {
     sm: 'h-6 w-6',
@@ -31,17 +40,37 @@ export function Logo({ size = 'md', showText = true, className = '' }) {
   return (
     <div className={`flex items-center space-x-3 ${className}`}>
       <div className={`${sizeClasses[size]} flex-shrink-0`}>
-        {settings.companyLogo ? (
-          <img
-            src={settings.companyLogo}
-            alt={`${settings.companyName} Logo`}
-            className={`${sizeClasses[size]} object-contain rounded-lg`}
-          />
-        ) : (
+        {/* {user?.logo ? (
+       <img
+    src={`data:${user.logo.contentType};base64,${user.logo.data}`}
+    alt={`${user?._id} Logo`}
+    className={`${sizeClasses[size]} object-contain rounded-lg`}
+  />
+) : (
           <div className={`${sizeClasses[size]} bg-gradient-to-br from-primary to-success rounded-lg flex items-center justify-center shadow-sm`}>
             <BarChart3 className={`${iconSizeClasses[size]} text-white`} />
           </div>
-        )}
+        )} */}
+        {userLogo ? (
+  <img
+    src={userLogo}
+    alt={`${user?._id} Logo`}
+    className={`${sizeClasses[size]} object-contain rounded-lg`}
+  />
+) : user?.logo ? (
+  <img
+    src={`data:${user.logo.contentType};base64,${user.logo.data}`}
+    alt={`${user?._id} Logo`}
+    className={`${sizeClasses[size]} object-contain rounded-lg`}
+  />
+) : (
+  <div
+    className={`${sizeClasses[size]} bg-gradient-to-br from-primary to-success rounded-lg flex items-center justify-center shadow-sm`}
+  >
+    <BarChart3 className={`${iconSizeClasses[size]} text-white`} />
+  </div>
+)}
+
       </div>
       {showText && (
         <div className="flex flex-col">

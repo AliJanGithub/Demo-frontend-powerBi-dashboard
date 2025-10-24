@@ -26,4 +26,27 @@ export const authApi = {
         const response = await api.post(`${url}/auth/reset-password/${token}`, { password: newPassword });
         return response.data;
     },
-};
+ uploadUserLogo: async (file) => {
+    const formData = new FormData();
+    formData.append('logo', file);
+
+    const response = await api.post('/users/upload-logo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  },
+
+getUserLogo: async (userId) => {
+    const response = await api.get(`/users/${userId}/logo`, {
+      responseType: 'blob', // receive binary image data
+    });
+
+    // Convert blob to object URL for <img src="">
+    const imageUrl = URL.createObjectURL(response.data);
+    return imageUrl;
+  },
+
+}

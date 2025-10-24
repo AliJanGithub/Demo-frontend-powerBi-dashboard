@@ -585,10 +585,13 @@ const invitationCheck=()=>{
 
  <div className="text-right space-y-1">
       <p className="text-xs text-gray-500">
-        Last login: {new Date(user.lastLogin).toLocaleDateString()}
+        Last login: {new Date(user.createdAt).toLocaleDateString()}
       </p>
+      {/* <p className="text-xs text-gray-500">
+        Access to {getUserAccess(user?.).length} dashboard(s)
+      </p> */}
       <p className="text-xs text-gray-500">
-        Access to {getUserAccess(user.id).length} dashboard(s)
+       Member of {(user?.company.name)} 
       </p>
 
       <div className="flex items-center justify-end space-x-2 mt-2">
