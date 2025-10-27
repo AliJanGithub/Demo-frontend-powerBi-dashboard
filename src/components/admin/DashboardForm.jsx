@@ -6,6 +6,7 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { Trash2 } from '../icons/Icons'; // Assuming you have an Icons file
+import { useDashboards } from '../DashboardContext';
 
 // Helper functions (re-imported or defined here)
 // You must move parseTags and validateTags here or import them.
@@ -21,7 +22,6 @@ import { Trash2 } from '../icons/Icons'; // Assuming you have an Icons file
 const DashboardForm = ({
   formData,
   formErrors,
-
   handleChange,
   handleSubmit,
   editingDashboard,
@@ -46,6 +46,7 @@ const DashboardForm = ({
 //   const handleTagsBlur = () => {
 //     updateFormDataTags(tagsInput); // Call the prop function to update formData
 //   };
+const {loading}=useDashboards()
 
   return (
     <div id='dashboard-form-wrapper' className="space-y-6">
@@ -179,7 +180,11 @@ const DashboardForm = ({
               type="submit"
               className="px-6 py-2"
             >
-              {editingDashboard ? 'Update Dashboard' : 'Add Dashboard'}
+             {editingDashboard
+  ? 'Update Dashboard'
+  : loading
+    ? 'ADDING DASHBOARD'
+    : 'Add Dashboard'}
             </Button>
           </div>
         </div>

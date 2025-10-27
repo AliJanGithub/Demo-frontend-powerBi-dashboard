@@ -139,12 +139,27 @@ const getUsers=async()=>{
 }
   
 
-  const logout = () => {
+const logout = async () => {
+  try {
+    // ✅ Get the token first, THEN remove it
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    // Optional: tell backend to invalidate refresh token
+    if (refreshToken) {
+      await api.post('/auth/logout', { refreshToken });
+    }
+
+    // ✅ Clear all tokens and user data
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+
     setUser(null);
-  };
+  } catch (error) {
+    console.error('Logout failed:', error);
+  }
+};
+
 
   const acceptInvite = async (token, password, name) => {
     const response = await api.post('/auth/accept-invite', { token, password, name });

@@ -519,49 +519,205 @@ import { Card, CardHeader, CardContent, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Image, Upload } from '../icons/Icons';
 import { useAuth } from '../AuthContext';
+import { Users } from 'lucide-react';
 
+// export function OrganizationSettings() {
+//   const { settings } = useSettings();
+//   const { showToast } = useToast();
+//   const fileInputRef = useRef(null);
+
+//   const { user, userLogo, uploadUserLogo, fetchUserLogo } = useAuth(); // ✅ aligned with new AuthContext
+
+//   const [previewLogo, setPreviewLogo] = useState(userLogo || settings.companyLogo);
+
+//   // ✅ Fetch logo from backend if not loaded yet
+//   useEffect(() => {
+//     if (user?._id) fetchUserLogo(user._id);
+//   }, [user?._id]);
+
+//   // ✅ Update preview whenever userLogo changes (after fetch/upload)
+//   useEffect(() => {
+//     if (userLogo) setPreviewLogo(userLogo);
+//   }, [userLogo]);
+
+//   /**
+//    * ✅ Handles logo upload
+//    */
+//   const handleLogoUpload = async (event) => {
+//     const file = event.target.files?.[0];
+//     if (!file) return;
+
+//     if (file.size > 2 * 1024 * 1024) {
+//       showToast('Logo file must be less than 2MB', 'error');
+//       return;
+//     }
+
+//     // Local preview for instant feedback
+//     const reader = new FileReader();
+//     reader.onload = (e) => setPreviewLogo(e.target?.result);
+//     reader.readAsDataURL(file);
+
+//     try {
+//       await uploadUserLogo(file); // ✅ use context function
+//       await fetchUserLogo(user._id); // ✅ refresh immediately
+//       showToast('Logo uploaded successfully!', 'success');
+//     } catch (error) {
+//       console.error('Upload error:', error);
+//       showToast('Error uploading logo', 'error');
+//     }
+//   };
+
+//   const removeLogo = () => {
+//     setPreviewLogo(null);
+//     if (fileInputRef.current) fileInputRef.current.value = '';
+//   };
+
+//   return (
+//     <div id="legacy-design-wrapper" className="space-y-6">
+//       {/* Header */}
+//       <div>
+//         <h1 className="text-2xl text-gray-900 mb-2">Organization Settings</h1>
+//         <p className="text-gray-600">
+//           Customize your organization's branding and appearance
+//         </p>
+//       </div>
+
+//       {/* Company Information */}
+//       <Card>
+//         <CardHeader>
+//           <CardTitle className="flex items-center space-x-2">
+//             <span className="text-lg font-semibold">Company Information</span>
+//           </CardTitle>
+//         </CardHeader>
+
+//         <CardContent className="space-y-4">
+//           <div className="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition">
+//             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+//               <span className="text-sm text-gray-500">Company Name</span>
+//               <span className="font-medium text-gray-800">
+//                 {user?.company?.name || 'N/A'}
+//               </span>
+//             </div>
+
+//             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2">
+//               <span className="text-sm text-gray-500">Created At</span>
+//               <span className="font-medium text-gray-800">
+//                 {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+//               </span>
+//             </div>
+
+//             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2">
+//               <span className="text-sm text-gray-500">Role</span>
+//               <span className="font-medium text-gray-800">{user?.role || 'N/A'}</span>
+//             </div>
+
+//             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2">
+//               <span className="text-sm text-gray-500">Creator Email</span>
+//               <span className="font-medium text-gray-800">
+//                 {user?.invitedBy || 'N/A'}
+//               </span>
+//             </div>
+//           </div>
+//         </CardContent>
+//       </Card>
+
+//       {/* ✅ Company Logo Upload Section */}
+//       <Card>
+//         <CardHeader>
+//           <CardTitle className="flex items-center space-x-2">
+//             <Image className="h-5 w-5" />
+//             <span>Company Logo</span>
+//           </CardTitle>
+//         </CardHeader>
+
+//         <CardContent className="space-y-6">
+//           <div className="space-y-4">
+//             <div className="flex items-start space-x-4">
+//               <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+//                 {previewLogo ? (
+//                   <img
+//                     src={previewLogo}
+//                     alt="Company Logo"
+//                     className="w-full h-full object-contain rounded-lg"
+//                   />
+//                 ) : (
+//                   <div className="text-center">
+//                     <Image className="h-8 w-8 text-gray-400 mx-auto mb-1" />
+//                     <span className="text-xs text-gray-500">No logo</span>
+//                   </div>
+//                 )}
+//               </div>
+
+//               <div className="flex-1 space-y-2">
+//                 <div className="flex space-x-2">
+//                   <Button
+//                     variant="outline"
+//                     onClick={() => fileInputRef.current?.click()}
+//                     className="flex items-center space-x-2"
+//                   >
+//                     <Upload className="h-4 w-4" />
+//                     <span>Upload Logo</span>
+//                   </Button>
+//                   {/* {previewLogo && (
+//                     <Button variant="outline" onClick={removeLogo}>
+//                       Remove
+//                     </Button>
+//                   )} */}
+//                 </div>
+//                 <p className="text-sm text-gray-500">
+//                   Upload a square logo (recommended 200x200px, max 2MB)
+//                   <br />
+//                   Supported formats: PNG, JPG, SVG
+//                 </p>
+//               </div>
+//             </div>
+
+//             {/* Hidden file input */}
+//             <input
+//               ref={fileInputRef}
+//               type="file"
+//               accept="image/*"
+//               onChange={handleLogoUpload}
+//               className="hidden"
+//             />
+//           </div>
+//         </CardContent>
+//       </Card>
+//     </div>
+//   );
+// }
 export function OrganizationSettings() {
   const { settings } = useSettings();
   const { showToast } = useToast();
   const fileInputRef = useRef(null);
-
-  const { user, userLogo, uploadUserLogo, fetchUserLogo } = useAuth(); // ✅ aligned with new AuthContext
-
+  const { user, userLogo, uploadUserLogo, fetchUserLogo } = useAuth();
   const [previewLogo, setPreviewLogo] = useState(userLogo || settings.companyLogo);
 
-  // ✅ Fetch logo from backend if not loaded yet
   useEffect(() => {
     if (user?._id) fetchUserLogo(user._id);
   }, [user?._id]);
 
-  // ✅ Update preview whenever userLogo changes (after fetch/upload)
   useEffect(() => {
     if (userLogo) setPreviewLogo(userLogo);
   }, [userLogo]);
 
-  /**
-   * ✅ Handles logo upload
-   */
   const handleLogoUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     if (file.size > 2 * 1024 * 1024) {
-      showToast('Logo file must be less than 2MB', 'error');
+      showToast('Logo must be under 2MB', 'error');
       return;
     }
 
-    // Local preview for instant feedback
     const reader = new FileReader();
     reader.onload = (e) => setPreviewLogo(e.target?.result);
     reader.readAsDataURL(file);
 
     try {
-      await uploadUserLogo(file); // ✅ use context function
-      await fetchUserLogo(user._id); // ✅ refresh immediately
+      await uploadUserLogo(file);
+      await fetchUserLogo(user._id);
       showToast('Logo uploaded successfully!', 'success');
-    } catch (error) {
-      console.error('Upload error:', error);
+    } catch {
       showToast('Error uploading logo', 'error');
     }
   };
@@ -572,72 +728,79 @@ export function OrganizationSettings() {
   };
 
   return (
-    <div id="legacy-design-wrapper" className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl text-gray-900 mb-2">Organization Settings</h1>
-        <p className="text-gray-600">
-          Customize your organization's branding and appearance
+    <div
+      id="organization-settings"
+      className="space-y-8 p-6 bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-3xl shadow-xl border border-blue-100/50"
+    >
+      {/* HEADER */}
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">
+          Organization Settings
+        </h1>
+        <p className="text-gray-500 mt-2">
+          Manage your organization’s identity, logo, and appearance.
         </p>
       </div>
 
-      {/* Company Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <span className="text-lg font-semibold">Company Information</span>
-          </CardTitle>
-        </CardHeader>
+      {/* COMPANY INFO CARD */}
+      <div
+        className="relative rounded-2xl border border-gray-200/60 bg-white/70 backdrop-blur-xl 
+        shadow-md hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300"
+      >
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-200/10 via-purple-200/10 to-indigo-200/10 opacity-60" />
+        <Card className="relative border-none bg-transparent">
+          <CardHeader className="border-b border-gray-100/50">
+            <CardTitle className="flex items-center space-x-2 text-lg font-semibold text-gray-800">
+              <Users className="h-5 w-5 text-blue-600" />
+              <span>Company Information</span>
+            </CardTitle>
+          </CardHeader>
 
-        <CardContent className="space-y-4">
-          <div className="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-              <span className="text-sm text-gray-500">Company Name</span>
-              <span className="font-medium text-gray-800">
-                {user?.company?.name || 'N/A'}
-              </span>
-            </div>
+          <CardContent className="space-y-3 pt-4">
+            {[
+              ['Company Name', user?.company?.name],
+              ['Created At', user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'],
+              ['Role', user?.role],
+              ['Creator Email', user?.invitedBy],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="flex justify-between items-center px-3 py-2 rounded-xl hover:bg-blue-50/60 transition"
+              >
+                <span className="text-sm text-gray-500">{label}</span>
+                <span className="font-medium text-gray-800">{value || 'N/A'}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
 
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2">
-              <span className="text-sm text-gray-500">Created At</span>
-              <span className="font-medium text-gray-800">
-                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-              </span>
-            </div>
+      {/* COMPANY LOGO CARD */}
+      <div
+        className="relative rounded-2xl border border-gray-200/60 bg-white/70 backdrop-blur-xl 
+        shadow-md hover:shadow-lg hover:shadow-purple-100/50 transition-all duration-300"
+      >
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-200/10 via-pink-200/10 to-indigo-200/10 opacity-60" />
+        <Card className="relative border-none bg-transparent">
+          <CardHeader className="border-b border-gray-100/50">
+            <CardTitle className="flex items-center space-x-2 text-lg font-semibold text-gray-800">
+              <Image className="h-5 w-5 text-purple-600" />
+              <span>Company Logo</span>
+            </CardTitle>
+          </CardHeader>
 
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2">
-              <span className="text-sm text-gray-500">Role</span>
-              <span className="font-medium text-gray-800">{user?.role || 'N/A'}</span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2">
-              <span className="text-sm text-gray-500">Creator Email</span>
-              <span className="font-medium text-gray-800">
-                {user?.invitedBy || 'N/A'}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ✅ Company Logo Upload Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Image className="h-5 w-5" />
-            <span>Company Logo</span>
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-start space-x-4">
-              <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+          <CardContent className="space-y-6 pt-4">
+            <div className="flex items-start space-x-6">
+              {/* Logo Preview Box */}
+              <div
+                className="relative w-28 h-28 border-2 border-dashed border-gray-300 rounded-xl 
+                flex items-center justify-center bg-gray-50/70 hover:border-purple-400 transition"
+              >
                 {previewLogo ? (
                   <img
                     src={previewLogo}
                     alt="Company Logo"
-                    className="w-full h-full object-contain rounded-lg"
+                    className="w-full h-full object-contain rounded-lg shadow-sm"
                   />
                 ) : (
                   <div className="text-center">
@@ -647,31 +810,35 @@ export function OrganizationSettings() {
                 )}
               </div>
 
-              <div className="flex-1 space-y-2">
-                <div className="flex space-x-2">
+              {/* Upload Actions */}
+              <div className="flex-1 space-y-3">
+                <div className="flex space-x-3">
                   <Button
-                    variant="outline"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center space-x-2"
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-md transition"
                   >
-                    <Upload className="h-4 w-4" />
-                    <span>Upload Logo</span>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Logo
                   </Button>
-                  {/* {previewLogo && (
-                    <Button variant="outline" onClick={removeLogo}>
+
+                  {previewLogo && (
+                    <Button
+                      variant="outline"
+                      onClick={removeLogo}
+                      className="hover:bg-red-50 hover:text-red-600 border-red-200 text-red-500"
+                    >
                       Remove
                     </Button>
-                  )} */}
+                  )}
                 </div>
-                <p className="text-sm text-gray-500">
-                  Upload a square logo (recommended 200x200px, max 2MB)
-                  <br />
-                  Supported formats: PNG, JPG, SVG
+
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  Recommended size: <span className="font-medium text-gray-700">200×200px</span>, max 2MB. <br />
+                  Supported: PNG, JPG, SVG.
                 </p>
               </div>
             </div>
 
-            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -679,9 +846,10 @@ export function OrganizationSettings() {
               onChange={handleLogoUpload}
               className="hidden"
             />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
+

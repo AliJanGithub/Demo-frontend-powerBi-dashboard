@@ -155,25 +155,65 @@ export const DashboardProvider = ({ children }) => {
 //     setLoading(false);
 //   }
 // };
-const assignDashboard = async (userIds, department) => {
-  console.log("printinggggggggggg",department,userIds)
+// const assignDashboard = async (userIds, department) => {
+//   console.log("printinggggggggggg",department,userIds)
+//   setLoading(true);
+//   setError(null);
+//   try {
+//     const response = await api.post('/dashboards/assign-by-department', {
+//       department,
+//       userIds
+//     });
+
+//     const updatedIds = response.data.data.dashboards.map(d => d._id);
+
+//     // Update local dashboards with new accessUsers
+//     setDashboards((prev) =>
+//       prev.map((d) =>
+//         updatedIds.includes(d._id)
+//           ? {
+//               ...d,
+//               accessUsers: Array.from(new Set([...(d.accessUsers || []), ...userIds]))
+//             }
+//           : d
+//       )
+//     );
+
+//     return response.data;
+//   } catch (err) {
+//     console.error('Assign by department failed:', err);
+//     setError(err.response?.data?.message || err.message);
+//     throw err;
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+const assignDashboard = async (userIds, department, selectedDashboardIds = []) => {
+  console.log("Assigning dashboards:", { department, userIds, selectedDashboardIds });
+
   setLoading(true);
   setError(null);
+
   try {
+    // ✅ Send selectedDashboardIds if provided
     const response = await api.post('/dashboards/assign-by-department', {
       department,
-      userIds
+      userIds,
+      selectedDashboardIds, // new optional field
     });
 
-    const updatedIds = response.data.data.dashboards.map(d => d._id);
+    const assignedDashboards = response.data.data.dashboards || [];
+    const updatedIds = assignedDashboards.map(d => d._id);
 
-    // Update local dashboards with new accessUsers
+    // ✅ Update local dashboards state
     setDashboards((prev) =>
       prev.map((d) =>
         updatedIds.includes(d._id)
           ? {
               ...d,
-              accessUsers: Array.from(new Set([...(d.accessUsers || []), ...userIds]))
+              accessUsers: Array.from(
+                new Set([...(d.accessUsers || []), ...userIds])
+              ),
             }
           : d
       )

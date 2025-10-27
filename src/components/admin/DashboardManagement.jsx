@@ -571,7 +571,7 @@ const handleChange = useCallback((field, value) => {
                       <Building className="h-3 w-3 mr-1" />
                       Department
                     </span>
-                    <span>{dashboard?.company?.name || " no company"}</span>
+                    <span>{dashboard?.department || " no company"}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="flex items-center">
@@ -683,7 +683,7 @@ const handleChange = useCallback((field, value) => {
                   
                   {/* Department - 3 cols */}
                   <div className="col-span-3">
-                    <div className="text-sm text-gray-900">{dashboard.company.name}</div>
+                    <div className="text-sm text-gray-900">{dashboard?.department}</div>
                     <div className="text-xs text-gray-500">Internal</div>
                   </div>
                   
@@ -758,7 +758,7 @@ const handleChange = useCallback((field, value) => {
             <DashboardForm
             formData={formData}
             formErrors={formErrors}
-         
+            loading={loading}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
             editingDashboard={editingDashboard}
@@ -835,4 +835,5 @@ const handleChange = useCallback((field, value) => {
 
     </TooltipProvider>
   );
+
 }

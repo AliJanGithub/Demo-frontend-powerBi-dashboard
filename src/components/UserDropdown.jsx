@@ -49,11 +49,16 @@ const navigate=useNavigate()
     }
   }, [isOpen]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('login');
+const handleLogout = async () => {
+  try {
+    await logout(); // wait until cleanup is done
+    navigate('/login');
     setIsOpen(false);
-  };
+  } catch (error) {
+    console.error('Error during logout:', error);
+  }
+};
+
 
   const handleSettings = () => {
     if (user?.role === 'admin') {

@@ -356,6 +356,12 @@ export function NotificationButton() {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setDropdownPosition({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+        // setDropdownPosition({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+   const dropdownHeight = 300; // approximate height of dropdown
+   const bottomSpace = window.innerHeight - rect.bottom;
+   const top = bottomSpace < dropdownHeight ? rect.top - dropdownHeight - 8 : rect.bottom + 8;
+
+   setDropdownPosition({ top, right: window.innerWidth - rect.right });
     }
   };
 
@@ -467,7 +473,7 @@ export function NotificationButton() {
         )}
       </Button>
 
-{isOpen && <DropdownContent />}
+{isOpen && createPortal(<DropdownContent />, document.body)}
     </>
   );
 }
