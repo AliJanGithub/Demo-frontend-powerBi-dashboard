@@ -74,7 +74,10 @@ export default defineConfig({
     outDir: 'dist',
   },
   server: {
+     host: '0.0.0.0',
     port: 3000,
+    allowedHosts: ['.biportal365.com'],
+
     open: true,
   },
 });

@@ -26,6 +26,7 @@ export  function SuperAdminDashboard() {
     email: "",
     companyName: "",
     name: "",
+    subdomain:""
   });
 
   // 🔹 Fetch Companies + Dashboards
@@ -76,7 +77,7 @@ export  function SuperAdminDashboard() {
       setTimeout(() => {
         setShowInviteModal(false);
         setInviteSuccess(false);
-        setInviteForm({ email: "", companyName: "", name: "" });
+        setInviteForm({ email: "", companyName: "", name: "",subdomain });
         fetchData();
       }, 1500);
     } catch (err) {
@@ -331,6 +332,20 @@ export  function SuperAdminDashboard() {
                     value={inviteForm.name}
                     onChange={(e) =>
                       setInviteForm({ ...inviteForm, name: e.target.value })
+                    }
+                    required
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sub Domain
+                  </label>
+                  <input
+                    type="text"
+                    value={inviteForm.subdomain}
+                    onChange={(e) =>
+                      setInviteForm({ ...inviteForm, subdomain: e.target.value })
                     }
                     required
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
