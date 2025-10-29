@@ -109,7 +109,7 @@ export function AuthProvider({ children }) {
     return { success: true, user: userData };
   } catch (error) {
     // ✅ Avoid logging entire error objects with circular refs
-    console.error("Login failed:", error.message || error);
+    console.error("Login failed:", error.message , error);
 
     return { success: false, error: error.message || "Login failed" };
   }
