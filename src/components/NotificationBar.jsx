@@ -201,25 +201,51 @@
 //   );
 // }
 // NotificationBar.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Bell, ExternalLink } from './icons/Icons';
+import api from '../lib/api';
 
 export function NotificationBar() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const accessToken = localStorage.getItem('accessToken');
+
+  // Fetch notifications from API
+  const fetchNotifications = useCallback(async () => {
+    if (!user || !accessToken) return;
+    
+    try {
+      const response = await api.get('/notifications');
+      if (response.data?.notifications) {
+        setNotifications(response.data.notifications);
+      } else if (Array.isArray(response.data)) {
+        setNotifications(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  }, [user, accessToken]);
 
   useEffect(() => {
     if (!user) return;
 
-    const socket = io('http://localhost:5000/notifications', {
-      auth: { token: localStorage.getItem('accessToken') },
+    // Fetch existing notifications
+    fetchNotifications();
+
+    // Setup socket for real-time notifications
+    const envApiUrl = import.meta.env.VITE_API_URL;
+    const socketUrl = envApiUrl?.replace('/api', '') || 'http://localhost:5000';
+
+    const socket = io(`${socketUrl}/notifications`, {
+      auth: { token: accessToken },
+      transports: ['websocket'],
     });
 
     socket.on('new_notification', (notification) => {
@@ -227,18 +253,30 @@ export function NotificationBar() {
     });
 
     return () => socket.disconnect();
-  }, [user]);
+  }, [user, accessToken, fetchNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   if (!user || unreadCount === 0) return null;
 
-  const handleClick = (notification) => {
+  const handleClick = async (notification) => {
+    // Mark as read
+    try {
+      await api.patch(`/notifications/${notification._id}/read`);
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+    
     setNotifications((prev) =>
       prev.map((n) => (n._id === notification._id ? { ...n, isRead: true } : n))
     );
+    
+    // Navigate to dashboard
     if (notification.dashboard) {
-      navigate(`/dashboard/${notification.dashboard}`);
+      const dashboardId = typeof notification.dashboard === 'object' 
+        ? notification.dashboard._id 
+        : notification.dashboard;
+      navigate(`/view-dashboard/${dashboardId}`);
     }
   };
 
@@ -259,13 +297,15 @@ export function NotificationBar() {
             {notifications.slice(0, 5).map((n) => (
               <div
                 key={n._id}
-                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50"
+                className={`flex items-center justify-between py-2 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50 ${
+                  !n.isRead ? 'bg-blue-50/50' : ''
+                }`}
                 onClick={() => handleClick(n)}
               >
                 <p className="text-sm text-gray-800">{n.message}</p>
                 {n.dashboard && (
                   <ExternalLink
-                    className="h-4 w-4 text-primary"
+                    className="h-4 w-4 text-primary flex-shrink-0 ml-2"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleClick(n);

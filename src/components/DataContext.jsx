@@ -271,7 +271,7 @@ export function DataProvider({ children }) {
   const [usageMetrics, setUsageMetrics] = useState(mockUsageMetrics);
   const [notifications, setNotifications] = useState(mockNotifications);
 
-  const departments = ['Sales', 'Marketing', 'Finance', 'Operations', 'Human Resources', 'IT'];
+  const departments = ['FINANCE', 'SALES', 'MARKETING', 'GENERAL', 'OTHER', 'HR'];
 
   useEffect(() => {
     if (user) {

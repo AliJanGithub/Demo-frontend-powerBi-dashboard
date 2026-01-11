@@ -103,29 +103,16 @@
 import axios from 'axios';
 
 // -----------------------------------------------------
-// 🌍 Detect environment + hostname
+// 🌍 Environment Configuration
 // -----------------------------------------------------
-const currentHostname = window.location.hostname;
-const currentProtocol = window.location.protocol; // 'http:' or 'https:'
-const isLocal = import.meta.env.DEV || currentHostname.includes('localhost') || currentHostname.includes('lvh.me');
 
-// -----------------------------------------------------
-// 🧠 Compute API base URL correctly for all environments
-// -----------------------------------------------------
-let API_BASE_URL;
+// Use the VITE_API_URL directly, ignoring all other environment logic.
+// This enforces the URL defined in your .env file: https://api.biportal365.com/api
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// Priority 1: Explicit .env override
-if (import.meta.env.VITE_API_URL) {
-  API_BASE_URL = import.meta.env.VITE_API_URL;
-}
-// Priority 2: Local dev backend
-else if (isLocal) {
-  API_BASE_URL = `${currentProtocol}//${currentHostname}:5000/api`;
-}
-// Priority 3: Production via NGINX proxy
-else {
-  // In production, NGINX proxies /api → backend:5000
-  API_BASE_URL = `${currentProtocol}//${currentHostname}/api`;
+// Add a check to ensure the necessary environment variable is set
+if (!API_BASE_URL) {
+  console.error("VITE_API_URL is not defined! Check your .env file.");
 }
 
 // -----------------------------------------------------
@@ -164,7 +151,7 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('No refresh token');
 
-        // Use same base URL (never hardcode)
+        // Use base URL computed above
         const res = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
         const { accessToken } = res.data;
 

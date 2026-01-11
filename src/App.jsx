@@ -1,15 +1,19 @@
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import { DataProvider } from './components/DataContext';
 import { SettingsProvider } from './components/SettingsContext';
 import { ToastProvider } from './components/ToastProvider';
+import { ThemeProvider } from './components/ThemeContext';
 
 import { LoginPage } from './components/auth/LoginPage';
 import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminDashboardTopNav } from './components/admin/AdminDashboardTopNav';
+import { ProfileSettingsPage } from './components/admin/ProfileSettingsPage';
+import { AccountSettingsPage } from './components/admin/AccountSettingsPage';
 import { UserDashboard } from './components/user/UserDashboard';
+import { UserProfileSettingsPage } from './components/user/UserProfileSettingsPage';
+import { UserAccountSettingsPage } from './components/user/UserAccountSettingsPage';
 // import { UserDashboardTopNav } from './components/user/UserDashboardTopNav';
 import { DashboardViewerLayout } from './components/dashboard/DashboardViewerLayout';
 import { ReportViewerLayout } from './components/report/ReportViewerLayout';
@@ -66,118 +70,135 @@ export default function App() {
   return (
     <SettingsProvider>
       <AuthProvider>
-   
+        <ThemeProvider>
+          <DataProvider>
+            <ToastProvider>
 
-      
-        <DataProvider>
-          <ToastProvider>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                {/* Private role-based root */}
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <DashboardProvider>
+                        <DashboardRouter />
+                      </DashboardProvider>
+                    </PrivateRoute>
+                  }
+                />
 
-              {/* Private role-based root */}
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                         <DashboardProvider>
-                    <DashboardRouter />
-                    </DashboardProvider>
-                  </PrivateRoute>
-                }
-              />
+                {/* 🧩 Dashboard viewer */}
+                <Route
+                  path="/view-dashboard/:id"
+                  element={
+                    <PrivateRoute>
+                      <SocketProvider>
+                        <DashboardProvider>
+                          <DashboardViewerLayout />
+                        </DashboardProvider>
+                      </SocketProvider>
+                    </PrivateRoute>
+                  }
+                />
 
-              {/* 🧩 Dashboard viewer */}
-              <Route
-                path="/view-dashboard/:id"
-                element={
-                  <PrivateRoute>
-                  <SocketProvider>
+                {/* 🧩 Report viewer */}
+                <Route
+                  path="/view-report/:id"
+                  element={
+                    <PrivateRoute>
+                      <ReportErrorBoundary>
+                        <ReportViewerLayout />
+                      </ReportErrorBoundary>
+                    </PrivateRoute>
+                  }
+                />
 
-                  
-                    <DashboardProvider>
-                    <DashboardViewerLayout />
+                {/* Admin routes */}
+                <Route
+                  path="/admin"
+                  element={
+                    <PrivateRoute roles={['ADMIN']}>
+                      <DashboardProvider>
+                        <AdminDashboard />
+                      </DashboardProvider>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/profile"
+                  element={
+                    <PrivateRoute roles={['ADMIN']}>
+                      <ProfileSettingsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/account"
+                  element={
+                    <PrivateRoute roles={['ADMIN']}>
+                      <AccountSettingsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin-topnav"
+                  element={
+                    <PrivateRoute roles={['ADMIN']}>
+                      <AdminDashboardTopNav />
+                    </PrivateRoute>
+                  }
+                />
 
-                    </DashboardProvider>
-                    </SocketProvider>
-                  </PrivateRoute>
-                }
-              />
+                {/* User routes */}
+                <Route
+                  path="/user"
+                  element={
+                    <PrivateRoute roles={['USER']}>
+                      <DashboardProvider>
+                        <UserDashboard />
+                      </DashboardProvider>
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/user/profile"
+                  element={
+                    <PrivateRoute roles={['USER']}>
+                      <UserProfileSettingsPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/user/account"
+                  element={
+                    <PrivateRoute roles={['USER']}>
+                      <UserAccountSettingsPage />
+                    </PrivateRoute>
+                  }
+                />
 
-              {/* 🧩 Report viewer */}
-              <Route
-                path="/view-report/:id"
-                element={
-                  <PrivateRoute>
-                    <ReportErrorBoundary>
-                      <ReportViewerLayout />
-                    </ReportErrorBoundary>
-                  </PrivateRoute>
-                }
-              />
+                {/* Super Admin route */}
+                <Route
+                  path="/superadmin"
+                  element={
+                    <PrivateRoute roles={['SUPER_ADMIN']}>
+                      <SuperAdminDashboard />
+                    </PrivateRoute>
+                  }
+                />
 
-              {/* Admin routes */}
-              <Route
-                path="/admin"
-                element={
-                  <PrivateRoute roles={['ADMIN']}>
-                    <DashboardProvider>
-                    <AdminDashboard />
+                {/* Fallback */}
+                <Route path="/accept-invite" element={<AcceptInvitePage />} />
 
-                    </DashboardProvider>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin-topnav"
-                element={
-                  <PrivateRoute roles={['ADMIN']}>
-                    <AdminDashboardTopNav />
-                  </PrivateRoute>
-                }
-              />
-
-              {/* User routes */}
-              <Route
-                path="/user"
-                element={
-                  <PrivateRoute roles={['USER']}>
-                    <DashboardProvider>
-                    <UserDashboard />
-
-                    </DashboardProvider>
-                  </PrivateRoute>
-                }
-              />
-              {/* <Route
-                path="/user-topnav"
-                element={
-                  <PrivateRoute roles={['USER']}>
-                    <UserDashboardTopNav />
-                  </PrivateRoute>
-                }
-              /> */}
-
-              {/* Super Admin route */}
-              <Route
-                path="/superadmin"
-                element={
-                  <PrivateRoute roles={['SUPER_ADMIN']}>
-                    <SuperAdminDashboard />
-                  </PrivateRoute>
-                }
-              />
-
-              {/* Fallback */}
-              <Route path="/accept-invite" element={<AcceptInvitePage />} />
-
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </ToastProvider>
-        </DataProvider>
-       
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </ToastProvider>
+          </DataProvider>
+        </ThemeProvider>
       </AuthProvider>
     </SettingsProvider>
   );

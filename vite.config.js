@@ -60,7 +60,8 @@ import tailwindcss from '@tailwindcss/vite'
 
 
 export default defineConfig({
-  plugins: [react(),
+  plugins: [
+    react(),
     tailwindcss(),
   ],
   resolve: {
@@ -74,10 +75,13 @@ export default defineConfig({
     outDir: 'dist',
   },
   server: {
-     host: '0.0.0.0',
-    port: 3000,
-    allowedHosts: ['.biportal365.com'],
-
+    host: '0.0.0.0', // Allows external devices on your network to access dev server
+    port: 3001,
+    // Removed allowedHosts: ['.biportal365.com'] as it is unnecessary
+    // since we are using a direct, absolute VITE_API_URL.
     open: true,
+    
+    // 💡 IMPORTANT: No need for a proxy here since your axios config uses 
+    // VITE_API_URL (https://api.biportal365.com/api) directly.
   },
 });

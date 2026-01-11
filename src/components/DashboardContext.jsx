@@ -6,6 +6,7 @@ const DashboardContext = createContext(undefined);
 export const DashboardProvider = ({ children }) => {
   const [dashboards, setDashboards] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [favorites,setFavorites]=useState([])
   const [error, setError] = useState(null);
   const [dashboardById,setDashboardId]=useState(null)
 
@@ -188,6 +189,180 @@ export const DashboardProvider = ({ children }) => {
 //     setLoading(false);
 //   }
 // };
+
+
+
+
+
+
+
+
+
+
+  // ==================== FAVORITE FUNCTIONS ==================== //
+
+  // ✅ Fetch user's favorite dashboards
+  const fetchFavoriteDashboards = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.get('/dashboards/favorites/mine');
+      const favoriteDashboards = response.data?.data?.favorites || [];
+      setFavorites(favoriteDashboards);
+      return favoriteDashboards;
+    } catch (err) {
+      console.error('Fetch favorites failed:', err);
+      setError(err.response?.data?.message || err.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Toggle favorite status
+  const toggleDashboardFavorite = async (dashboardId) => {
+    if (!dashboardId) {
+      throw new Error('Dashboard ID is required');
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.post(`/dashboards/${dashboardId}/favorite/toggle`);
+      const isFavorite = response.data?.data?.isFavorite || false;
+      
+      // Update local favorites state
+      if (isFavorite) {
+        // Add to favorites - we need to get the dashboard details
+        try {
+          const dashboardResponse = await api.get(`/dashboards/${dashboardId}`);
+          const dashboard = dashboardResponse.data?.data?.dashboard;
+          if (dashboard) {
+            setFavorites(prev => {
+              const exists = prev.some(fav => fav._id === dashboardId);
+              if (!exists) {
+                return [...prev, dashboard];
+              }
+              return prev;
+            });
+          }
+        } catch (err) {
+          console.error('Failed to fetch dashboard details:', err);
+        }
+      } else {
+        // Remove from favorites
+        setFavorites(prev => prev.filter(fav => fav._id !== dashboardId));
+      }
+      
+      return isFavorite;
+    } catch (err) {
+      console.error('Toggle favorite failed:', err);
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Check if a dashboard is favorited
+  const checkDashboardFavoriteStatus = async (dashboardId) => {
+    if (!dashboardId) {
+      return { isFavorited: false };
+    }
+
+    try {
+      const response = await api.get(`/dashboards/${dashboardId}/favorite/status`);
+      return {
+        isFavorited: response.data?.data?.isFavorited || false,
+        addedAt: response.data?.data?.addedAt,
+        tags: response.data?.data?.tags || [],
+        order: response.data?.data?.order
+      };
+    } catch (err) {
+      console.error('Check favorite status failed:', err);
+      return { isFavorited: false, tags: [], order: 0 };
+    }
+  };
+
+  // ✅ Add dashboard to favorites
+  const addDashboardToFavorites = async (dashboardId, tags = []) => {
+    if (!dashboardId) {
+      throw new Error('Dashboard ID is required');
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      await api.post(`/dashboards/${dashboardId}/favorite/add`);
+      
+      // Fetch dashboard details and add to favorites
+      try {
+        const dashboardResponse = await api.get(`/dashboards/${dashboardId}`);
+        const dashboard = dashboardResponse.data?.data?.dashboard;
+        if (dashboard) {
+          setFavorites(prev => {
+            const exists = prev.some(fav => fav._id === dashboardId);
+            if (!exists) {
+              return [...prev, dashboard];
+            }
+            return prev;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard details:', err);
+      }
+      
+      return true;
+    } catch (err) {
+      console.error('Add to favorites failed:', err);
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Remove dashboard from favorites
+  const removeDashboardFromFavorites = async (dashboardId) => {
+    if (!dashboardId) {
+      throw new Error('Dashboard ID is required');
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      await api.post(`/dashboards/${dashboardId}/favorite/remove`);
+      
+      // Remove from favorites
+      setFavorites(prev => prev.filter(fav => fav._id !== dashboardId));
+      
+      return true;
+    } catch (err) {
+      console.error('Remove from favorites failed:', err);
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Get dashboards with favorite status
+  const fetchDashboardsWithFavoriteStatus = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.get('/dashboards/with-favorites/status');
+      const dashboardsWithStatus = response.data?.data?.dashboards || [];
+      setDashboards(dashboardsWithStatus);
+      return dashboardsWithStatus;
+    } catch (err) {
+      console.error('Fetch dashboards with favorite status failed:', err);
+      setError(err.response?.data?.message || err.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
 const assignDashboard = async (userIds, department, selectedDashboardIds = []) => {
   console.log("Assigning dashboards:", { department, userIds, selectedDashboardIds });
 
@@ -256,11 +431,22 @@ const assignDashboard = async (userIds, department, selectedDashboardIds = []) =
     } finally {
       setLoading(false);
     }
+
+    
+
+
+
+
+
+
+
   };
 
   // ✅ Fetch dashboards automatically on mount
   useEffect(() => {
     fetchDashboards();
+        fetchFavoriteDashboards();
+
     
   }, []);
 
@@ -271,6 +457,7 @@ const assignDashboard = async (userIds, department, selectedDashboardIds = []) =
         loading,
         error,
         dashboardById,
+        favorites,
         fetchDashboards,
         createDashboard,
         getDashboardById,
@@ -278,6 +465,12 @@ const assignDashboard = async (userIds, department, selectedDashboardIds = []) =
         deleteDashboard,
         assignDashboard, // ✅ added here
         unassignDashboard,
+            fetchFavoriteDashboards,
+        fetchDashboardsWithFavoriteStatus,
+        toggleDashboardFavorite,
+        checkDashboardFavoriteStatus,
+        addDashboardToFavorites,
+        removeDashboardFromFavorites,
       }}
     >
       {children}

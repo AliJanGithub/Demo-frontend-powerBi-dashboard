@@ -163,7 +163,7 @@ console.log("comments loading ...................",comments,loadingComments)
   };
 
   const canDeleteComment = (comment) => {
-    return user?.id === comment.userId || user?.role === 'ADMIN';
+    return user?._id === comment?.user?._id ;
   };
 
   // Initialize access management state when dialog opens
@@ -749,18 +749,19 @@ console.log("dashboad by id",dashboardById)
                                       {new Date(comment.createdAt).toLocaleDateString()} at {new Date(comment?.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                   </div>
-                                  <div>{comment?.user?.email}</div>
+                                  {/* <div>{comment?.user?.email}</div> */}
                                 </div>
                                 {canDeleteComment(comment) && (
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleDeleteComment(comment.id)}
-                                    className="h-8 w-8 p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => handleDeleteComment(comment._id)}
+                                    className="h-12 w-12 p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
                                     title="Delete comment"
                                   >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-14 w-14" />
                                   </Button>
+                                 
                                 )}
                               </div>
                               <div className="text-sm text-gray-700 leading-relaxed">

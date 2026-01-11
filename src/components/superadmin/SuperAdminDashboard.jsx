@@ -26,7 +26,8 @@ export  function SuperAdminDashboard() {
     email: "",
     companyName: "",
     name: "",
-    subdomain:""
+     subdomain: "",
+  subscriptionPlan: "TRIAL"
   });
 
   // 🔹 Fetch Companies + Dashboards
@@ -101,11 +102,12 @@ export  function SuperAdminDashboard() {
     <Layout>
       <div className="flex   min-h-screen bg-gray-50">
         {/* Sidebar */}
-        <div
-          className={`fixed md:static inset-y-0 left-0 z-30 w-64 bg-white border-r transform transition-transform duration-300 ease-in-out ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
-        >
+      <div
+  className={`fixed md:static inset-y-0 left-0 z-30 w-64 h-screen bg-white border-r transform transition-transform duration-300 ease-in-out ${
+    sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+  }`}>
+
+        
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-xl font-bold text-blue-600">Super Admin</h2>
             <button
@@ -154,7 +156,7 @@ export  function SuperAdminDashboard() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="flex items-center justify-between bg-white px-6 py-4 border-b shadow-sm">
+          <header className="flex items-center justify-between px-6 py-4 border-b shadow-sm">
             <button
               className="md:hidden text-gray-700"
               onClick={() => setSidebarOpen(true)}
@@ -169,11 +171,11 @@ export  function SuperAdminDashboard() {
           </header>
 
           {/* Dashboard Overview */}
-          <main className="p-6">
+          <main className="flex justify-center-safe p-6  mb-8">
             {activeTab === "overview" && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-30">
                 <div className="bg-white rounded-xl shadow p-6 border">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between ">
                     <div>
                       <p className="text-sm text-gray-600">Total Companies</p>
                       <p className="text-3xl font-bold text-gray-900">
@@ -276,122 +278,164 @@ export  function SuperAdminDashboard() {
         </div>
       </div>
 
+    
       {/* Invite Modal */}
-      {showInviteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Invite Company Admin
-            </h2>
+{showInviteModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
+    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8 relative animate-[fadeIn_0.3s_ease]">
+      <button
+        onClick={() => setShowInviteModal(false)}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+      >
+        <X className="w-6 h-6" />
+      </button>
 
-            {inviteSuccess ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-green-600" />
-                </div>
-                <p className="font-semibold text-gray-900">
-                  Invitation Sent!
-                </p>
-                <p className="text-gray-600">
-                  The admin will receive an email to set up their account.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleInviteAdmin} className="space-y-4">
-                {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                    <p className="text-sm text-red-800">{error}</p>
-                  </div>
-                )}
+      <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+        Invite Company Admin
+      </h2>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Name
-                  </label>
-                  <input
-                    type="text"
-                    value={inviteForm.companyName}
-                    onChange={(e) =>
-                      setInviteForm({
-                        ...inviteForm,
-                        companyName: e.target.value,
-                      })
-                    }
-                    required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Admin Name
-                  </label>
-                  <input
-                    type="text"
-                    value={inviteForm.name}
-                    onChange={(e) =>
-                      setInviteForm({ ...inviteForm, name: e.target.value })
-                    }
-                    required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Sub Domain
-                  </label>
-                  <input
-                    type="text"
-                    value={inviteForm.subdomain}
-                    onChange={(e) =>
-                      setInviteForm({ ...inviteForm, subdomain: e.target.value })
-                    }
-                    required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Admin Email
-                  </label>
-                  <input
-                    type="email"
-                    value={inviteForm.email}
-                    onChange={(e) =>
-                      setInviteForm({ ...inviteForm, email: e.target.value })
-                    }
-                    required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowInviteModal(false);
-                      setError("");
-                      setInviteForm({ email: "", companyName: "", name: "" });
-                    }}
-                    className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-100"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={inviteLoading}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                  >
-                    {inviteLoading ? "Sending..." : "Send Invite"}
-                  </button>
-                </div>
-              </form>
-            )}
+      {inviteSuccess ? (
+        <div className="text-center py-8">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
+            <CheckCircle2 className="w-10 h-10 text-green-600" />
           </div>
+          <p className="font-semibold text-gray-900 text-lg">
+            Invitation Sent!
+          </p>
+          <p className="text-gray-600 mt-1">
+            The admin will receive an email to complete setup.
+          </p>
         </div>
+      ) : (
+        <form onSubmit={handleInviteAdmin} className="space-y-5">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          )}
+
+          {/* Company Name */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Company Name
+            </label>
+            <input
+              type="text"
+              value={inviteForm.companyName}
+              onChange={(e) =>
+                setInviteForm({
+                  ...inviteForm,
+                  companyName: e.target.value,
+                })
+              }
+              required
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Admin Name */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Admin Name
+            </label>
+            <input
+              type="text"
+              value={inviteForm.name}
+              onChange={(e) =>
+                setInviteForm({ ...inviteForm, name: e.target.value })
+              }
+              required
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Subdomain */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Subdomain
+            </label>
+            <input
+              type="text"
+              value={inviteForm.subdomain}
+              onChange={(e) =>
+                setInviteForm({ ...inviteForm, subdomain: e.target.value })
+              }
+              required
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Admin Email */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Admin Email
+            </label>
+            <input
+              type="email"
+              value={inviteForm.email}
+              onChange={(e) =>
+                setInviteForm({ ...inviteForm, email: e.target.value })
+              }
+              required
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Subscription Plan */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Subscription Plan
+            </label>
+            <select
+              value={inviteForm.subscriptionPlan || "TRIAL"}
+              onChange={(e) =>
+                setInviteForm({
+                  ...inviteForm,
+                  subscriptionPlan: e.target.value,
+                })
+              }
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="TRIAL">Trial — 30 Days</option>
+              <option value="PRO">Pro — 6 Months</option>
+              <option value="ENTERPRISE">Enterprise — 1 Year</option>
+            </select>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3 pt-6">
+            <button
+              type="button"
+              onClick={() => {
+                setShowInviteModal(false);
+                setError("");
+                setInviteForm({
+                  email: "",
+                  companyName: "",
+                  name: "",
+                  subdomain: "",
+                  subscriptionPlan: "TRIAL",
+                });
+              }}
+              className="flex-1 px-4 py-2 border rounded-xl hover:bg-gray-100 font-medium text-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={inviteLoading}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-sm"
+            >
+              {inviteLoading ? "Sending..." : "Send Invite"}
+            </button>
+          </div>
+        </form>
       )}
+    </div>
+  </div>
+)}
+
     </Layout>
   );
 }
